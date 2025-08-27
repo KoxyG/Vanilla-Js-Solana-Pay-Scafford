@@ -1,41 +1,72 @@
-// Solana Pay QR Code Generator with Payment Verification
+/**
+ * Solana Pay QR Code Generator with Payment Verification
+ * 
+ * This class handles the generation of Solana Pay QR codes and monitors
+ * for payment completion using blockchain transaction tracking.
+ * 
+ * Features:
+ * - QR code generation for Solana Pay URLs
+ * - Real-time payment monitoring
+ * - Address validation
+ * - Payment confirmation display
+ */
 class SolanaPayQRGenerator {
     constructor() {
-        this.connection = null;
-        this.paymentInterval = null;
-        this.paymentConfirmed = false;
-        this.transactionSignature = null;
-        this.loading = false;
+        // Initialize class properties
+        this.connection = null;        // Solana blockchain connection
+        this.paymentInterval = null;   // Interval for payment monitoring
+        this.paymentConfirmed = false; // Payment confirmation status
+        this.transactionSignature = null; // Transaction signature when payment is confirmed
+        this.loading = false;          // Loading state for UI feedback
+        
+        // Start the application
         this.init();
     }
 
+    /**
+     * Initialize the Solana Pay QR Generator
+     * Sets up blockchain connection and event listeners
+     */
     init() {
-        // Initialize Solana connection (using devnet for demo)
+        // Initialize Solana connection to devnet (for testing)
+        // Change to mainnet-beta for production use
         this.connection = new solanaWeb3.Connection(
             'https://api.devnet.solana.com',
             'confirmed'
         );
         
+        // Set up user interface event listeners
         this.setupEventListeners();
     }
 
+    /**
+     * Set up event listeners for user interactions
+     * Handles button clicks and input validation
+     */
     setupEventListeners() {
+        // QR code generation button
         const qrButton = document.getElementById('generateQR');
         qrButton.addEventListener('click', () => this.handlePayment());
 
-        // Add input validation
+        // Real-time input validation
         const amountInput = document.getElementById('amount');
         const recipientInput = document.getElementById('recipient');
 
+        // Validate inputs as user types
         amountInput.addEventListener('input', () => this.validateInputs());
         recipientInput.addEventListener('input', () => this.validateInputs());
     }
 
+    /**
+     * Validate user inputs in real-time
+     * Enables/disables the generate button based on input validity
+     */
     validateInputs() {
         const amount = parseFloat(document.getElementById('amount').value);
         const recipient = document.getElementById('recipient').value.trim();
         const qrButton = document.getElementById('generateQR');
 
+        // Check if inputs are valid: amount > 0, recipient exists, and is valid Solana address
         if (amount > 0 && recipient.length > 0 && this.isValidSolanaAddress(recipient)) {
             qrButton.disabled = false;
             this.showStatus('Ready to generate QR code!', 'info');
@@ -45,32 +76,47 @@ class SolanaPayQRGenerator {
         }
     }
 
+    /**
+     * Validate Solana wallet address format
+     * @param {string} address - The address to validate
+     * @returns {boolean} - True if address is valid Solana format
+     */
     isValidSolanaAddress(address) {
-        // Basic Solana address validation (32-44 characters, base58)
+        // Solana addresses are base58 encoded and typically 32-44 characters
+        // This regex checks for valid base58 characters and reasonable length
         return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address);
     }
 
+    /**
+     * Main payment handling function
+     * Generates QR code and starts payment monitoring
+     */
     async handlePayment() {
+        // Get user inputs
         const amount = parseFloat(document.getElementById('amount').value);
         const recipient = document.getElementById('recipient').value.trim();
         const memo = document.getElementById('memo').value.trim();
 
+        // Validate recipient address before proceeding
         if (!this.isValidSolanaAddress(recipient)) {
             this.showStatus('Please enter a valid recipient address first', 'error');
             return;
         }
 
+        // Set loading state and reset payment status
         this.setLoading(true);
         this.paymentConfirmed = false;
         this.transactionSignature = null;
 
         try {
+            // Convert inputs to Solana objects
             const recipientPubkey = new solanaWeb3.PublicKey(recipient);
-            const amountBN = new BigNumber(amount);
-            const reference = new solanaWeb3.Keypair().publicKey;
+            const amountBN = new BigNumber(amount); // Use BigNumber for precise decimal handling
+            const reference = new solanaWeb3.Keypair().publicKey; // Generate unique reference for this payment
             const label = 'Solana Pay Demo';
             const message = memo || `Payment of ${amount} SOL`;
 
+            // Log transaction details for debugging
             console.log('Creating transaction details:', {
                 recipient: recipientPubkey.toString(),
                 amount: amountBN.toString(),
@@ -80,6 +126,7 @@ class SolanaPayQRGenerator {
             });
 
             // Manually create the Solana Pay URL (more reliable than external package)
+            // Format: solana:RECIPIENT?amount=AMOUNT&label=LABEL&message=MESSAGE&reference=REFERENCE
             const params = new URLSearchParams();
             params.append('amount', amountBN.toString());
             if (memo && memo.trim() !== '') {
@@ -94,10 +141,10 @@ class SolanaPayQRGenerator {
             };
             console.log('Generated URL:', url.href);
 
-            // Generate QR code
+            // Generate QR code from the URL
             await this.generateQRCode(url.href);
 
-            // Start payment verification
+            // Start monitoring for payment completion
             await this.verifyPayment(recipientPubkey, amountBN, reference);
 
         } catch (error) {
@@ -107,9 +154,13 @@ class SolanaPayQRGenerator {
         }
     }
 
+    /**
+     * Generate QR code from Solana Pay URL
+     * @param {string} url - The Solana Pay URL to encode in QR code
+     */
     async generateQRCode(url) {
         try {
-            // Generate QR code using a reliable service
+            // Get the QR code container element
             const qrCodeImage = document.getElementById('qrCodeImage');
             
             if (!qrCodeImage) {
@@ -117,9 +168,11 @@ class SolanaPayQRGenerator {
                 return;
             }
             
+            // Use external QR code service for reliable generation
+            // This service creates PNG QR codes from URLs
             const qrServiceUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}&format=png&margin=2`;
             
-            // Create image element
+            // Create image element for the QR code
             const img = document.createElement('img');
             img.src = qrServiceUrl;
             img.alt = 'QR Code';
@@ -128,17 +181,17 @@ class SolanaPayQRGenerator {
             img.style.maxWidth = '100%';
             img.style.height = 'auto';
             
-            // Clear container and add image
+            // Clear container and add the new QR code image
             qrCodeImage.innerHTML = '';
             qrCodeImage.appendChild(img);
 
-            // Show QR code container
+            // Show the QR code container
             const qrContainer = document.getElementById('qrCode');
             if (qrContainer) {
                 qrContainer.style.display = 'block';
             }
             
-            // Display the URL
+            // Display the URL for debugging/copying
             const qrUrlElement = document.getElementById('qrUrl');
             if (qrUrlElement) {
                 qrUrlElement.textContent = url;
@@ -151,22 +204,31 @@ class SolanaPayQRGenerator {
         }
     }
 
+    /**
+     * Monitor for payment completion using blockchain transaction tracking
+     * @param {PublicKey} recipient - The recipient's public key
+     * @param {BigNumber} amount - The expected payment amount
+     * @param {PublicKey} reference - The unique reference for this payment
+     */
     async verifyPayment(recipient, amount, reference) {
         try {
+            // Set up polling interval to check for payment every 5 seconds
             const interval = setInterval(async () => {
                 try {
-                    // Manually search for transactions with the reference
+                    // Search for transactions that involve our reference
+                    // This finds any transaction that used our unique reference
                     const signatures = await this.connection.getSignaturesForAddress(reference, { limit: 10 });
                     
                     if (signatures.length > 0) {
-                        clearInterval(interval); // Stop polling
+                        clearInterval(interval); // Stop polling once we find a transaction
 
-                        // Simple validation: check if transaction exists and is successful
+                        // Validate the transaction to ensure it's successful
                         try {
                             const transaction = await this.connection.getTransaction(signatures[0].signature, {
                                 commitment: 'confirmed'
                             });
                             
+                            // Check if transaction exists and was successful (no errors)
                             if (transaction && transaction.meta && !transaction.meta.err) {
                                 this.transactionSignature = signatures[0].signature;
                                 this.paymentConfirmed = true;
@@ -180,12 +242,15 @@ class SolanaPayQRGenerator {
                 } catch (error) {
                     console.log("No valid transaction found yet, retrying...");
                 }
-            }, 5000); // Poll every 5 seconds
+            }, 5000); // Check every 5 seconds
         } catch (err) {
             console.error("Error verifying payment:", err);
         }
     }
 
+    /**
+     * Display payment success message and transaction details
+     */
     showPaymentSuccess() {
         this.showStatus('✅ Payment confirmed!', 'success');
         
@@ -203,11 +268,16 @@ class SolanaPayQRGenerator {
         }
     }
 
+    /**
+     * Update loading state and button appearance
+     * @param {boolean} loading - Whether the app is in loading state
+     */
     setLoading(loading) {
         this.loading = loading;
         const qrButton = document.getElementById('generateQR');
         
         if (loading) {
+            // Disable button and show loading spinner with "Waiting..." text
             qrButton.disabled = true;
             qrButton.innerHTML = `
                 <svg style="width: 12px; height: 12px; margin-right: 6px; animation: spin 1s linear infinite;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -217,17 +287,23 @@ class SolanaPayQRGenerator {
                 Waiting...
             `;
         } else {
+            // Re-enable button and show normal text
             qrButton.disabled = false;
             qrButton.innerHTML = '📱 Generate QR Code';
         }
     }
 
+    /**
+     * Display status messages to the user
+     * @param {string} message - The message to display
+     * @param {string} type - The type of message ('success', 'error', 'info')
+     */
     showStatus(message, type = 'info') {
         const statusElement = document.getElementById('status');
         statusElement.textContent = message;
         statusElement.className = `status ${type}`;
         
-        // Auto-hide success messages after 5 seconds
+        // Auto-hide success messages after 5 seconds for better UX
         if (type === 'success') {
             setTimeout(() => {
                 statusElement.textContent = '';
@@ -237,7 +313,7 @@ class SolanaPayQRGenerator {
     }
 }
 
-// Initialize the app when DOM is loaded
+// Initialize the app when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
     new SolanaPayQRGenerator();
 });

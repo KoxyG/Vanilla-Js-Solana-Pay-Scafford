@@ -1,9 +1,11 @@
+/* Reset default browser styles */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* Base body styling with gradient background */
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -12,12 +14,14 @@ body {
     line-height: 1.6;
 }
 
+/* Main container for centering and max-width */
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
 }
 
+/* Header section styling */
 header {
     text-align: center;
     margin-bottom: 3rem;
@@ -35,6 +39,7 @@ header p {
     opacity: 0.9;
 }
 
+/* Main content grid layout */
 main {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -42,6 +47,7 @@ main {
     align-items: start;
 }
 
+/* Card styling for payment form and info sections */
 .payment-card, .info-card {
     background: white;
     border-radius: 16px;
@@ -50,6 +56,7 @@ main {
     backdrop-filter: blur(10px);
 }
 
+/* Card headings */
 .payment-card h2, .info-card h3 {
     color: #2d3748;
     margin-bottom: 1.5rem;
@@ -57,6 +64,7 @@ main {
     font-weight: 600;
 }
 
+/* Form group styling for input fields */
 .form-group {
     margin-bottom: 1.5rem;
 }
@@ -68,6 +76,7 @@ main {
     color: #4a5568;
 }
 
+/* Input field styling */
 .form-group input {
     width: 100%;
     padding: 0.75rem;
@@ -77,14 +86,14 @@ main {
     transition: border-color 0.2s ease;
 }
 
+/* Input focus state */
 .form-group input:focus {
     outline: none;
     border-color: #667eea;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-
-
+/* QR code generation button styling */
 .qr-button {
     width: 100%;
     padding: 0.75rem;
@@ -99,10 +108,12 @@ main {
     margin-top: 1rem;
 }
 
+/* Button hover effect */
 .qr-button:hover {
     background: #38a169;
 }
 
+/* QR code container styling */
 .qr-container {
     margin-top: 1.5rem;
     text-align: center;
@@ -117,6 +128,7 @@ main {
     color: #2d3748;
 }
 
+/* QR code URL display styling */
 .qr-url {
     margin-top: 1rem;
     word-break: break-all;
@@ -128,6 +140,7 @@ main {
     border: 1px solid #e2e8f0;
 }
 
+/* Status message styling */
 .status {
     margin-top: 1rem;
     padding: 1rem;
@@ -135,24 +148,28 @@ main {
     font-weight: 500;
 }
 
+/* Success status styling */
 .status.success {
     background: #c6f6d5;
     color: #22543d;
     border: 1px solid #9ae6b4;
 }
 
+/* Error status styling */
 .status.error {
     background: #fed7d7;
     color: #742a2a;
     border: 1px solid #feb2b2;
 }
 
+/* Info status styling */
 .status.info {
     background: #bee3f8;
     color: #2a4365;
     border: 1px solid #90cdf4;
 }
 
+/* Information card list styling */
 .info-card ul {
     list-style: none;
     margin-bottom: 2rem;
@@ -164,6 +181,7 @@ main {
     padding-left: 1.5rem;
 }
 
+/* Custom bullet points for info list */
 .info-card li:before {
     content: "✓";
     position: absolute;
@@ -172,6 +190,7 @@ main {
     font-weight: bold;
 }
 
+/* Wallet information section styling */
 .wallet-info {
     background: #f7fafc;
     padding: 1.5rem;
@@ -194,18 +213,19 @@ main {
     font-size: 0.9rem;
 }
 
-/* Loading animation */
+/* Loading animation for buttons */
 .button-loading {
     display: inline-block;
     animation: pulse 1.5s ease-in-out infinite;
 }
 
+/* Pulse animation keyframes */
 @keyframes pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
 }
 
-/* Spinner animation */
+/* Spinner animation for loading states */
 @keyframes spin {
     from {
         transform: rotate(0deg);
@@ -215,50 +235,60 @@ main {
     }
 }
 
-/* Responsive design */
+/* Responsive design for mobile devices */
 @media (max-width: 768px) {
+    /* Stack cards vertically on mobile */
     main {
         grid-template-columns: 1fr;
     }
     
+    /* Reduce padding on mobile */
     .container {
         padding: 1rem;
     }
     
+    /* Smaller header on mobile */
     header h1 {
         font-size: 2rem;
     }
     
+    /* Reduce card padding on mobile */
     .payment-card, .info-card {
         padding: 1.5rem;
     }
 }
 
-/* Dark mode support */
+/* Dark mode support for users with dark mode preference */
 @media (prefers-color-scheme: dark) {
+    /* Dark background for cards */
     .payment-card, .info-card {
         background: #2d3748;
         color: #e2e8f0;
     }
     
+    /* Light text for headings in dark mode */
     .payment-card h2, .info-card h3, .wallet-info h4 {
         color: #e2e8f0;
     }
     
+    /* Light text for labels in dark mode */
     .form-group label {
         color: #cbd5e0;
     }
     
+    /* Dark input fields in dark mode */
     .form-group input {
         background: #4a5568;
         border-color: #718096;
         color: #e2e8f0;
     }
     
+    /* Dark wallet info background in dark mode */
     .wallet-info {
         background: #4a5568;
     }
     
+    /* Light text for wallet info in dark mode */
     .wallet-info li {
         color: #cbd5e0;
     }
