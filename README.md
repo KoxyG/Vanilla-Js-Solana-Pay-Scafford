@@ -49,20 +49,9 @@ cd html-solana-pay
 
 ### 2. Open the Project
 
-Simply open `index.html` in your web browser, or serve it using a local server:
+Simply open `index.html` in your web browser - that's it! No server needed.
 
-```bash
-# Using Python 3
-python -m http.server 8000
-
-# Using Node.js (if you have http-server installed)
-npx http-server
-
-# Using PHP
-php -S localhost:8000
-```
-
-Then visit `http://localhost:8000` in your browser.
+> **Note**: Since this project uses CDN links for all dependencies, it works perfectly by just opening the HTML file directly in your browser.
 
 ### 3. Generate QR Code
 
